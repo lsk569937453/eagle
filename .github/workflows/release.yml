@@ -50,11 +50,9 @@ jobs:
           export PKG_CONFIG_PATH=/usr/local/lib/x86_64-linux-gnu/pkgconfig
           # pkg-config --variable pc_path pkg-config
       - name: Build target
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --release --target ${{ matrix.target }}
+        shell: bash
+        run: |
+          cargo build --release --target ${{ matrix.target }}
       - name: Package
         shell: bash
         run: |
