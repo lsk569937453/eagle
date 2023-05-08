@@ -46,7 +46,7 @@ jobs:
       - name: Install Dependencies
         shell: bash
         run: |
-          sudo apt update &&sudo apt -y upgrade &&sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev
+          sudo apt update &&sudo apt -y upgrade &&sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev mingw-w64
           export PKG_CONFIG_PATH=/usr/local/lib/x86_64-linux-gnu/pkgconfig
           # pkg-config --variable pc_path pkg-config
       - name: Build target
