@@ -57,7 +57,7 @@ jobs:
         run: |
           #strip target/${{ matrix.target }}/release/eagle
           cd target/${{ matrix.target }}/release          
-          tar czvf ../../../eagle-${{ matrix.target }}.tar.gz eagle*
+          tar --exclude=eagle.d -czvf ../../../eagle-${{ matrix.target }}.tar.gz eagle*
           cd -
       - name: Publish
         uses: softprops/action-gh-release@v1
