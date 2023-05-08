@@ -46,20 +46,20 @@ jobs:
       - name: Install Dependencies
         shell: bash
         run: |
-          sudo apt update &&sudo apt -y upgrade &&sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev      
+          sudo apt update &&sudo apt -y upgrade &&sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev
+          export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
       - name: Build target
         uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
           args: --release --target ${{ matrix.target }}
-
       - name: Package
         shell: bash
         run: |
           #strip target/${{ matrix.target }}/release/eagle
           cd target/${{ matrix.target }}/release          
-          tar czvf ../../../eagle-${{ matrix.target }}.tar.gz eagle
+          tar czvf ../../../eagle-${{ matrix.target }}.tar.gz eagle*
           cd -
       - name: Publish
         uses: softprops/action-gh-release@v1
