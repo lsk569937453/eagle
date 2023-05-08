@@ -1,0 +1,24 @@
+[package]
+name = "eagle"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+opt-level = "z"  # Optimize for size.
+lto = true
+codegen-units = 1
+panic = "abort"
+
+
+[dependencies]
+tokio = { version = "1.28.0", features = ["full"] }
+anyhow = "1.0"
+plotters = "0.3.3"
+sysinfo = "0.29.0"
+clap = {version="4.2.7",features=["derive"]}
+chrono= "0.4.24"
+byte-unit= "4.0.19"
+ctrlc= "3.2.5"
+lazy_static = "1.4.0"
