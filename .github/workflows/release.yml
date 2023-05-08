@@ -49,11 +49,11 @@ jobs:
           sudo apt update &&sudo apt -y upgrade &&sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev
           export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
           cd /usr
-          list
+          ls
           cd lib
-          list
+          ls
           cd x86_64-linux-gnu
-          list
+          ls
       - name: Build target
         uses: actions-rs/cargo@v1
         with:
