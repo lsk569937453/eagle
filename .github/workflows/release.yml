@@ -46,7 +46,7 @@ jobs:
       - name: Install Dependencies
         shell: bash
         run: |
-          sudo apt update &&sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev      
+          sudo apt update &&sudo apt -y upgrade &&sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev      
       - name: Build target
         uses: actions-rs/cargo@v1
         with:
