@@ -50,9 +50,15 @@ jobs:
           export PKG_CONFIG_SYSROOT_DIR=/usr/x86_64-w64-mingw32
           # pkg-config --variable pc_path pkg-config
       - name: Build target
+        if: ${{ matrix.target!='x86_64-unknown-linux-musl' }}
         shell: bash
         run: |
           cargo build --release --target ${{ matrix.target }}
+      - name: Build target of musl
+        if: ${{ matrix.target=='x86_64-unknown-linux-musl' }}
+        shell: bash
+        run: |
+          PKG_CONFIG_SYSROOT_DIR=/usr/x86_64-w64-mingw32 cargo build --release --target ${{ matrix.target }}
       - name: Package
         shell: bash
         run: |
