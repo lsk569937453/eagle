@@ -47,6 +47,11 @@ jobs:
         run: |
           sudo apt update &&sudo apt -y upgrade &&sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev mingw-w64
           export PKG_CONFIG_PATH=/usr/local/lib/x86_64-linux-gnu/pkgconfig
+          cd /usr
+          ls
+          echo "aaaaa"
+          cd /usr/local
+          ls
           export PKG_CONFIG_SYSROOT_DIR=/usr/x86_64-w64-mingw32/
           # pkg-config --variable pc_path pkg-config
       - name: Build target
