@@ -11,15 +11,12 @@ lto = true
 codegen-units = 1
 panic = "abort"
 
-[target.x86_64-unknown-linux-gnu]
-pre-build = ["apt-get update && apt-get -y install fontconfig"]
 [dependencies]
-tokio = { version = "1.28.0", features = ["full"] }
+tokio = { version = "1.37.0", features = ["full"] }
 anyhow = "1.0"
 plotters = "0.3.3"
-sysinfo = "0.29.0"
+sysinfo = "0.30.12"
 clap = {version="4.2.7",features=["derive"]}
 chrono= "0.4.24"
 byte-unit= "4.0.19"
-ctrlc= "3.2.5"
-lazy_static = "1.4.0"
+sqlx = {version = "0.7", features = ["sqlite", "runtime-tokio-native-tls"] }
