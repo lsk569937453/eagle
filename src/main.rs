@@ -5,13 +5,18 @@ use chrono::Timelike;
 use clap::Parser;
 #[macro_use]
 extern crate anyhow;
+use sqlx::Sqlite;
 use sysinfo::{Pid, System};
 use tokio::time::{sleep, Instant, Interval};
 mod base_data;
 use crate::database::init::create_pool;
 use base_data::process_data::ProcessData;
 use byte_unit::Byte;
+use chrono::DateTime;
+use chrono::Local;
+use chrono::NaiveDateTime;
 use plotters::prelude::*;
+use sqlx::Pool;
 use sysinfo::Disks;
 
 use std::thread;
@@ -24,12 +29,32 @@ struct Args {
 }
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
+    let pool = create_pool().await?;
+    let pool_for_delete = pool.clone(); // Clone the pool for delete_old_data
+
+    tokio::spawn(async move {
+        delete_old_data(pool_for_delete).await.unwrap();
+    });
     // let args: Args = Args::parse();
-    start().await?;
+    start(pool).await?;
     Ok(())
 }
-pub async fn start() -> Result<(), anyhow::Error> {
-    let pool = create_pool().await?;
+pub async fn delete_old_data(pool: Pool<Sqlite>) -> Result<(), anyhow::Error> {
+    let mut interval = interval(Duration::from_secs(10));
+    loop {
+        interval.tick().await;
+        let current_time = Local::now();
+        let three_days_ago = current_time - Duration::from_secs(24 * 3600 * 5);
+        let data_str = three_days_ago.format("%Y-%m-%d %H:%M:%S").to_string();
+        sqlx::query("DELETE FROM system_data WHERE timestamp < $1")
+            .bind(data_str)
+            .execute(&pool)
+            .await?;
+    }
+
+    Ok(())
+}
+pub async fn start(pool: Pool<Sqlite>) -> Result<(), anyhow::Error> {
     let mut sys = System::new_all();
     let mut interval = interval(Duration::from_millis(1000));
     let mut networks = Networks::new_with_refreshed_list();
@@ -37,8 +62,6 @@ pub async fn start() -> Result<(), anyhow::Error> {
     loop {
         interval.tick().await;
         sys.refresh_all();
-        println!("=> system:");
-        // RAM and swap information:
         let total_memory = sys.total_memory();
         let used_memory = sys.used_memory();
         let total_swap = sys.total_swap();
@@ -50,7 +73,6 @@ pub async fn start() -> Result<(), anyhow::Error> {
             cpu_uage += cpu.cpu_usage();
         }
         cpu_uage /= (count * 100) as f32;
-        println!("cpu usage:{}", cpu_uage);
         let mut read_bytes = 0;
         let mut total_read_bytes = 0;
 
@@ -64,10 +86,6 @@ pub async fn start() -> Result<(), anyhow::Error> {
             write_bytes += disk_usage.written_bytes;
             total_write_bytes += disk_usage.total_written_bytes;
         }
-        println!(
-            "disk usage:{},{},{},{}",
-            read_bytes, total_read_bytes, write_bytes, total_write_bytes
-        );
 
         // Network interfaces name, total data received and total data transmitted:
         let mut total_received = 0;
@@ -77,7 +95,6 @@ pub async fn start() -> Result<(), anyhow::Error> {
             total_received += data.received();
             total_upload += data.transmitted();
         }
-        println!("network usage:{},{}", total_received, total_upload);
         let sql = format!(
             r#"INSERT INTO system_data (total_memory, used_memory, total_swap, used_swap,cpu_usage,disk_usage_read_bytes,disk_usage_written_bytes,network_usage_upload_bytes,network_usage_download_bytes) 
         VALUES ("{}","{}","{}","{}","{}","{}","{}","{}","{}")"#,
@@ -91,13 +108,11 @@ pub async fn start() -> Result<(), anyhow::Error> {
             total_upload,
             total_received
         );
-        println!("sql is {}", sql);
         let now = Instant::now();
         sqlx::query(&sql)
             .execute(&pool)
             .await
             .map_err(|e| anyhow!("insert error, the error is {}", e))?;
-        println!("time elasmpsed:{}ms", now.elapsed().as_millis());
     }
 
     Ok(())
