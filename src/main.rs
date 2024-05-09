@@ -1,25 +1,19 @@
 use std::time::Duration;
 mod database;
 use anyhow::anyhow;
-use chrono::Timelike;
 use clap::Parser;
 #[macro_use]
 extern crate anyhow;
 use sqlx::Sqlite;
-use sysinfo::{Pid, System};
-use tokio::time::{sleep, Instant, Interval};
+use sysinfo::System;
+use tokio::time::Instant;
 mod base_data;
 use crate::database::init::create_pool;
-use base_data::process_data::ProcessData;
-use byte_unit::Byte;
-use chrono::DateTime;
-use chrono::Local;
-use chrono::NaiveDateTime;
-use plotters::prelude::*;
-use sqlx::Pool;
-use sysinfo::Disks;
 
-use std::thread;
+use chrono::Local;
+
+use sqlx::Pool;
+
 use sysinfo::Networks;
 use tokio::time::interval;
 #[derive(Parser, Debug)]

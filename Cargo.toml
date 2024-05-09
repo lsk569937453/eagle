@@ -14,7 +14,6 @@ panic = "abort"
 [dependencies]
 tokio = { version = "1.37.0", features = ["full"] }
 anyhow = "1.0"
-plotters = "0.3.3"
 sysinfo = "0.30.12"
 clap = {version="4.2.7",features=["derive"]}
 chrono= "0.4.38"
